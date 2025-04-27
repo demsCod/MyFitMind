@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { BottomSheet } from '../../../components/ui/BottomSheet';
 import { Ionicons } from '@expo/vector-icons';
-import { Exercise } from '../../../hooks/useExerciseGithubDB'; // Nouveau type d'exercice
+import { Exercise } from '../../../hooks/useExerciseGithubDB';
+import { ExerciseConfig } from './ExerciseCard';
 
 interface CreateWorkoutModalProps {
   visible: boolean;
@@ -12,7 +13,9 @@ interface CreateWorkoutModalProps {
   selectedExercises: string[];
   exercisesList: Exercise[] | null;
   onToggleExercise: (id: string) => void;
+  exerciseConfigs: {[key: string]: ExerciseConfig};
   onCreateWorkout: () => void;
+  isCreating?: boolean;
 }
 
 const CreateWorkoutModal: React.FC<CreateWorkoutModalProps> = ({
@@ -23,12 +26,26 @@ const CreateWorkoutModal: React.FC<CreateWorkoutModalProps> = ({
   selectedExercises,
   exercisesList,
   onToggleExercise,
-  onCreateWorkout
+  exerciseConfigs,
+  onCreateWorkout,
+  isCreating = false
 }) => {
+  // Fonction pour obtenir le texte de configuration pour un exercice
+  const getExerciseConfigText = (exerciseId: string): string => {
+    const config = exerciseConfigs[exerciseId];
+    if (!config) return '3 séries × 10 répétitions | 60s de repos';
+    
+    const mainConfig = config.isTimeBased 
+      ? `${config.sets} séries × ${config.duration} sec` 
+      : `${config.sets} séries × ${config.reps} répétitions`;
+      
+    return `${mainConfig} | ${config.restTime}s de repos`;
+  };
+
   return (
     <BottomSheet
       visible={visible}
-      onClose={onClose}
+      onClose={isCreating ? undefined : onClose}
       title="Créer un entraînement"
     >
       <View className="p-4">
@@ -39,30 +56,43 @@ const CreateWorkoutModal: React.FC<CreateWorkoutModalProps> = ({
           placeholderTextColor="#999"
           value={workoutName}
           onChangeText={onChangeWorkoutName}
+          editable={!isCreating}
         />
         
         <Text className="text-white font-body-medium mb-3">Exercices sélectionnés ({selectedExercises.length})</Text>
         
-        <View className="mb-6 max-h-[200px]">
+        <View className="mb-6 max-h-[300px]">
           <FlatList
             data={exercisesList?.filter(ex => selectedExercises.includes(ex.id)) || []}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
-              <View className="flex-row items-center py-2 border-b border-gray-800">
-                <Text className="text-white flex-1">{item.name}</Text>
-                <TouchableOpacity onPress={() => onToggleExercise(item.id)}>
-                  <Ionicons name="close-circle" size={20} color="#999" />
-                </TouchableOpacity>
+              <View className="flex-row items-center py-3 border-b border-gray-800">
+                <View className="flex-1">
+                  <Text className="text-white font-body-medium">{item.name}</Text>
+                  <Text className="text-gray-400 text-xs mt-1">
+                    {getExerciseConfigText(item.id)}
+                  </Text>
+                </View>
+                {!isCreating && (
+                  <TouchableOpacity onPress={() => onToggleExercise(item.id)}>
+                    <Ionicons name="close-circle" size={20} color="#999" />
+                  </TouchableOpacity>
+                )}
               </View>
             )}
           />
         </View>
         
         <TouchableOpacity
-          className="bg-accent py-3 rounded-lg items-center"
+          className={`bg-accent py-3 rounded-lg items-center ${isCreating ? 'opacity-70' : ''}`}
           onPress={onCreateWorkout}
+          disabled={isCreating}
         >
-          <Text className="text-white font-body-semibold">Créer l'entraînement</Text>
+          {isCreating ? (
+            <ActivityIndicator color="white" size="small" />
+          ) : (
+            <Text className="text-white font-body-semibold">Créer l'entraînement</Text>
+          )}
         </TouchableOpacity>
       </View>
     </BottomSheet>

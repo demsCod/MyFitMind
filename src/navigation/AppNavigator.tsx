@@ -6,6 +6,7 @@ import BottomTabsNavigator from './BottomTabsNavigator';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 import WorkoutManagement from '../screens/WorkoutManagement/index';
+import WorkoutDetail from '../screens/WorkoutDetail/WorkoutDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,8 +37,9 @@ export default function AppNavigator() {
     }}>
       {user ? (
         <>
-        <Stack.Screen name="WorkoutManagement" component={WorkoutManagement} />
         <Stack.Screen name="Main" component={BottomTabsNavigator} />
+        <Stack.Screen name="WorkoutManagement" component={WorkoutManagement} />
+        <Stack.Screen name="WorkoutDetail" component={WorkoutDetail} />
         </>
       ) : (
         <>

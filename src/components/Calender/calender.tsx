@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { Text, View, ScrollView } from 'react-native'
 import moment from 'moment'
 import Date from './date'
 
@@ -14,7 +14,7 @@ const Calendar = ({ onSelectDate, selected }: CalendarProps) => {
   // get the dates from today to 10 days from now, format them as strings and store them in state
   const getDates = () => {
     const _dates = []
-    for (let i = -5; i < 5; i++) {
+    for (let i = -4; i < 4; i++) {
       const date = moment().add(i, 'days')
       _dates.push(date)
     }
@@ -24,19 +24,14 @@ const Calendar = ({ onSelectDate, selected }: CalendarProps) => {
   useEffect(() => {
     getDates()
   }, [])
-
-  //center the date on the current date
- 
-
  
   return (
     <>
-      <View style={styles.dateSection}>
-        <View style={styles.scroll}>
+      <View className="w-full ">
+        <View className="h-[100px]">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            // onScroll is a native event that returns the number of pixels the user has scrolled
             scrollEventThrottle={16}
           >
             {dates.map((date, index) => (
@@ -55,22 +50,3 @@ const Calendar = ({ onSelectDate, selected }: CalendarProps) => {
 }
 
 export default Calendar
-
-const styles = StyleSheet.create({
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'Poppins',
-  },
-  dateSection: {
-    width: '100%',
-    padding: 1,
-  },
-  scroll: {
-    height: 150,
-  },
-})

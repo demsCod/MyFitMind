@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
-import { useExerciseGithubDB } from '../../hooks/useExerciseGithubDB'; // Nouveau hook
+import { View, Text, ActivityIndicator, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { useExerciseGithubDB } from '../../hooks/useExerciseGithubDB';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { Chip } from '../../components/ui/Chip';
 import { useNavigation } from '@react-navigation/native';
+// Import du service
+import { WorkoutService } from '../../services/WorkoutService';
 
 // Composants locaux
-import ExerciseCard from './components/ExerciseCard';
+import ExerciseCard, { ExerciseConfig } from './components/ExerciseCard';
 import FilterBar from './components/FilterBar';
 import CreateWorkoutModal from './components/CreateWorkoutModal';
 import FilterModal from './components/FilterModal';
@@ -23,6 +25,9 @@ export default function WorkoutManagement() {
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
+  // Nouvel état pour stocker les configurations d'exercices
+  const [exerciseConfigs, setExerciseConfigs] = useState<{[key: string]: ExerciseConfig}>({});
+  const [isCreating, setIsCreating] = useState(false);
 
   // Utiliser le hook de filtres avec les exercices GitHub
   const { 
@@ -57,28 +62,77 @@ export default function WorkoutManagement() {
     });
   };
 
-  // Fonction pour créer l'entraînement
-  const handleCreateWorkout = () => {
+  // Nouvelle fonction pour mettre à jour la configuration d'un exercice
+  const updateExerciseConfig = (exerciseId: string, config: ExerciseConfig) => {
+    setExerciseConfigs(prev => ({
+      ...prev,
+      [exerciseId]: config
+    }));
+  };
+
+  // Fonction mise à jour pour créer l'entraînement avec configurations
+  const handleCreateWorkout = async () => {
     if (!workoutName.trim()) {
-      alert("Veuillez donner un nom à votre entraînement");
+      Alert.alert("Nom requis", "Veuillez donner un nom à votre entraînement");
       return;
     }
     
     if (selectedExercises.length === 0) {
-      alert("Veuillez sélectionner au moins un exercice");
+      Alert.alert("Exercices requis", "Veuillez sélectionner au moins un exercice");
       return;
     }
     
-    // Ici vous ajouteriez le code pour sauvegarder l'entraînement
-    console.log("Entraînement créé:", {
-      name: workoutName,
-      exercises: exercises?.filter(ex => selectedExercises.includes(ex.id)) || []
-    });
+    setIsCreating(true);
     
-    // Réinitialiser
-    setWorkoutName('');
-    setSelectedExercises([]);
-    setShowCreateModal(false);
+    try {
+      // Créer un tableau d'exercices avec leurs configurations
+      const workoutExercises = selectedExercises.map(id => {
+        const exercise = exercises?.find(ex => ex.id === id);
+        const config = exerciseConfigs[id] || {
+          sets: '3',
+          reps: '10',
+          duration: '30',
+          isTimeBased: false,
+          restTime: '60'
+        };
+        
+        if (!exercise) {
+          throw new Error(`Exercice avec ID ${id} non trouvé`);
+        }
+        
+        return {
+          exercise,
+          config
+        };
+      });
+      
+      // Utiliser le service pour enregistrer l'entraînement
+      const newWorkout = await WorkoutService.addWorkout(workoutName, workoutExercises);
+      
+      // Afficher un message de confirmation
+      Alert.alert(
+        "Entraînement créé",
+        `"${workoutName}" a été enregistré avec succès.`,
+        [{ text: "OK", onPress: () => navigation.navigate('Main') }]
+      );
+      
+      // Réinitialiser les états
+      setWorkoutName('');
+      setSelectedExercises([]);
+      setExerciseConfigs({});
+      setShowCreateModal(false);
+      
+      console.log("Entraînement créé:", newWorkout);
+      
+    } catch (error) {
+      console.error("Erreur lors de la création de l'entraînement:", error);
+      Alert.alert(
+        "Erreur",
+        "Une erreur est survenue lors de la création de l'entraînement."
+      );
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   // Contenus conditionnels
@@ -142,7 +196,7 @@ export default function WorkoutManagement() {
           <Text className="text-white font-title text-2xl">Exercices</Text>
           <TouchableOpacity 
             className="p-2 rounded-full bg-gray-800" 
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate('Main')}
           >
             <Ionicons name="close" size={24} color="white" />
           </TouchableOpacity>
@@ -197,6 +251,8 @@ export default function WorkoutManagement() {
               exercise={item} 
               isSelected={selectedExercises.includes(item.id)}
               onToggleSelect={() => toggleExerciseSelection(item.id)}
+              config={exerciseConfigs[item.id]}
+              onConfigChange={(config) => updateExerciseConfig(item.id, config)}
             />
           )}
           contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
@@ -262,7 +318,9 @@ export default function WorkoutManagement() {
         selectedExercises={selectedExercises}
         exercisesList={exercises}
         onToggleExercise={toggleExerciseSelection}
+        exerciseConfigs={exerciseConfigs}
         onCreateWorkout={handleCreateWorkout}
+        isCreating={isCreating}
       />
     </GestureHandlerRootView>
   );

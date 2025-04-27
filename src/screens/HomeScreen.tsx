@@ -24,13 +24,10 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Header />
-          <View className="-mt-5">
-            <ClassicWorkoutList />
+          <View className="px-2">
+            <Calendar date={selectedDate} onSelectDate={handleSelectDate} />
+            <SelectWorkout />
           </View>
-          <SelectWorkout />
-          {/* <View className="mt-10">
-            <WorkoutList />
-          </View> */} 
         </ScrollView>
       </SafeAreaView>
     </View>
