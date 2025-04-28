@@ -219,7 +219,7 @@ const CategoryPills = () => {
                     onPress={() => navigateToWorkoutDetail(workout.id)}
                     className="rounded-full p-2"
                   >
-                    <Ionicons name="play" size={18} color="white" />
+                   
                   </TouchableOpacity>
                 </TouchableOpacity>
               ))

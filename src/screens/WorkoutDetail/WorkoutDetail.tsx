@@ -76,8 +76,7 @@ const WorkoutDetail = () => {
           style: "default",
           onPress: () => {
             // Vous implémenterez cet écran plus tard
-            // navigation.navigate('WorkoutSession', { workout });
-            Alert.alert("En cours de développement", "Cette fonctionnalité sera disponible prochainement.");
+            navigation.navigate('WorkoutSession', { workout });
           }
         }
       ]
@@ -191,7 +190,7 @@ const WorkoutDetail = () => {
           className="bg-accent py-4 rounded-xl flex-row justify-center items-center"
           onPress={startWorkout}
         >
-          <Ionicons name="play" size={20} color="white" />
+          
           <Text className="text-white font-body-semibold text-lg ml-2">
             Commencer l'entraînement
           </Text>
