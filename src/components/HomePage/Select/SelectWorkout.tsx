@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, Ale
 import { Ionicons } from '@expo/vector-icons';
 import { useWorkouts } from '../../../hooks/useWorkouts';
 import { useNavigation } from '@react-navigation/native';
+import { Image } from 'react-native';
 
 type Category = {
   id: string;
@@ -20,6 +21,8 @@ const categories: Category[] = [
   { id: "yoga", name: "Yoga", icon: "leaf-outline" },
   { id: "other", name: "Autres", icon: "options-outline" },
 ];
+
+const notfoundImage = require('../../../../assets/WorkoutNotFound.png'); // Remplacez par le chemin de votre image
 
 const CategoryPills = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -185,9 +188,10 @@ const CategoryPills = () => {
           </View>
         ) : workoutsWithMeta.length === 0 ? (
           <View className="items-center justify-center py-10">
-            <Ionicons name="fitness-outline" size={40} color="#666" />
+          
+            <Image source={notfoundImage} className="w-48 h-48" />
             <Text className="text-white text-center mt-3">
-              Vous n'avez pas encore créé d'entraînement
+            
             </Text>
           </View>
         ) : (
@@ -244,9 +248,9 @@ const CategoryPills = () => {
         className="flex-row items-center justify-center px-4 py-5 mt-6 mb-2 rounded-3xl"
         onPress={handleCreateWorkout}
       >
-        <Ionicons name="add-circle-outline" size={40} color="#ddd" className="mr-2" />
+        <Ionicons name="add-circle-outline" size={60} color="#ddd" className="mr-2" />
         <Text className="text-white font-title text-lg ml-2">
-          Créer un nouvel entraînement
+        
         </Text>
       </TouchableOpacity>
 
