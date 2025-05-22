@@ -14,5 +14,7 @@ config.resolver = {
     },
   };
   
-
+config.resolver.sourceExts.push('cjs');
+// Ajouter cette configuration pour résoudre les problèmes d'importation Firebase
+config.resolver.unstable_enablePackageExports = false;
 module.exports = withNativeWind(config, { input: './global.css' });

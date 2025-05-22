@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'r
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Workout, WorkoutExercise } from '../../services/WorkoutService';
-import { Image } from 'react-native';
+
 
 const WorkoutSession = () => {
   const navigation = useNavigation();
@@ -15,6 +15,8 @@ const WorkoutSession = () => {
   const [isResting, setIsResting] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<number | null>(null);
   const [totalRestTime, setTotalRestTime] = useState<number | null>(null); // Total time for the rest
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
+  
 
   const handleCompleteSeries = (exerciseIndex: number, seriesIndex: number, restTime: number) => {
     setCompletedSeries((prev) => ({
@@ -154,17 +156,30 @@ const WorkoutSession = () => {
       </ScrollView>
         {/* Temps de repos */}
         {isResting && totalRestTime !== null && (
-        <View className="bg-gray-800 rounded-lg p-4 mt-4 mx-4 overflow-hidden">
+        <View>
+          <View className="absolute -top-5 left-0 right-0 flex-row justify-between px-4 mb-4">
+            <TouchableOpacity onPress={() => setCurrentTimer((prev) => (prev ? prev - 10 : 0))}>
+              <Text className="text-white font-title text-2xl">-10s</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setCurrentTimer((prev) => (prev ? prev + 10 : 10))}>
+              <Text className="text-white font-title text-2xl">+10s</Text>
+            </TouchableOpacity>
+          </View>
+         
+
+        <View className="bg-gray-800 rounded-lg p-4 mt-4 mx-4 overflow-hidden h-16">
             <View
-            className="absolute top-0 left-0 h-full bg-green-500"
+            className="absolute top-0 left-0 h-10 bg-green-500"
             style={{
                 width: `${((totalRestTime - (currentTimer || 0)) / totalRestTime) * 100}%`,
                 height: '210%',
             }}
             />
             <Text className="text-white font-body-semibold text-lg text-center relative">
-            Temps de repos: {typeof currentTimer === 'number' ? currentTimer.toFixed(1) : '0.0'}s
+             Temps de repos : {typeof currentTimer === 'number' ? Math.floor(currentTimer) : '0'}s
             </Text>
+        </View>
         </View>
         )}
     </SafeAreaView>

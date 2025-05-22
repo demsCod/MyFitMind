@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import { View, SafeAreaView, StatusBar, ScrollView } from 'react-native'
 import Calendar from '~/components/Calender/calender'
 import Header from '~/components/Header'
-import ClassicWorkoutList from '~/components/HomePage/BasicWorkut/classicWorkoutList'
-import WorkoutList from '~/components/HomePage/SpecialWorkoutList/workoutList'
 import moment from 'moment'
 import SelectWorkout from '~/components/HomePage/Select/SelectWorkout'
 
@@ -24,10 +22,10 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Header />
-          <View className="px-2">
+          {/*<View className="px-2">
             <Calendar date={selectedDate} onSelectDate={handleSelectDate} />
+            </View>*/}
             <SelectWorkout />
-          </View>
         </ScrollView>
       </SafeAreaView>
     </View>

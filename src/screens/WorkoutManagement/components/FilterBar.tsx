@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 interface FilterBarProps {
   filters: { search: string; target: string; equipment: string };
@@ -19,10 +20,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <View className="px-4 mb-4">
       {/* Barre de recherche */}
-      <View className="flex-row items-center bg-gray-800 rounded-lg px-3 py-2 mb-5">
-        <Ionicons name="search-outline" size={24} color="#999" />
+      <View className="flex-row items-center bg-grey/20 rounded-2xl px-3 py-2 mb-5">
+        <Ionicons name="search-outline" size={30} color="#999" />
         <TextInput
-          placeholder="Rechercher un exercice..."
+          placeholder="Recherche un exo"
           placeholderTextColor="#999"
           className="flex-1 ml-2 text-white font-body"
           value={filters.search}
@@ -40,69 +41,65 @@ const FilterBar: React.FC<FilterBarProps> = ({
         {/* Sélecteur de muscle */}
         <View className="flex-1 mr-2">
           <TouchableOpacity 
-            className="flex-row items-center justify-between bg-gray-800 rounded-lg px-4 py-3"
+            className="flex-row items-center justify-between bg-grey/20 rounded-lg px-4 py-3"
             onPress={() => setShowTargetMenu(true)}
           >
             <Text className="text-white font-body truncate" numberOfLines={1}>
-              {filters.target || "Tous les muscles"}
+              {filters.target || "All Muscles"}
             </Text>
             <Ionicons name="chevron-down" size={18} color="#999" />
           </TouchableOpacity>
-          
-          {/* Menu déroulant pour les muscles */}
-          <Modal
+
+            <Modal
             transparent={true}
             visible={showTargetMenu}
             animationType="fade"
             onRequestClose={() => setShowTargetMenu(false)}
-          >
+            >
             <TouchableOpacity
               className="flex-1 bg-black/50"
               activeOpacity={1}
               onPress={() => setShowTargetMenu(false)}
             >
-              <View className="bg-gray-900 m-4 mt-20 rounded-xl max-h-[60%] overflow-hidden">
-                <Text className="p-4 text-white font-title text-lg border-b border-gray-800">
-                  Sélectionner un muscle
-                </Text>
+              <View className="bg-background m-4 mt-60 rounded-xl max-h-[40%] max-w-[50%] overflow-hidden">
+             
+              <ScrollView>
+                <TouchableOpacity
+                className={`px-4 py-3 border-b border-grey/20 ${filters.target === '' ? 'bg-accent/20' : ''}`}
+                onPress={() => {
+                  onFilterChange('target', '');
+                  setShowTargetMenu(false);
+                }}
+                >
+                <Text className="text-white font-body">All Muscles</Text>
+                </TouchableOpacity>
                 
-                <ScrollView>
-                  <TouchableOpacity
-                    className={`px-4 py-3 border-b border-gray-800 ${filters.target === '' ? 'bg-accent/20' : ''}`}
-                    onPress={() => {
-                      onFilterChange('target', '');
-                      setShowTargetMenu(false);
-                    }}
-                  >
-                    <Text className="text-white font-body">Tous les muscles</Text>
-                  </TouchableOpacity>
-                  
-                  {filterOptions.targets.map(target => (
-                    <TouchableOpacity
-                      key={target}
-                      className={`px-4 py-3 border-b border-gray-800 ${filters.target === target ? 'bg-accent/20' : ''}`}
-                      onPress={() => {
-                        onFilterChange('target', target);
-                        setShowTargetMenu(false);
-                      }}
-                    >
-                      <Text className="text-white font-body">{target}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                {filterOptions.targets.map(target => (
+                <TouchableOpacity
+                  key={target}
+                  className={`px-4 py-3 border-b border-grey/20 ${filters.target === target ? 'bg-accent/20' : ''}`}
+                  onPress={() => {
+                  onFilterChange('target', target);
+                  setShowTargetMenu(false);
+                  }}
+                >
+                  <Text className="text-white font-body">{target}</Text>
+                </TouchableOpacity>
+                ))}
+              </ScrollView>
               </View>
             </TouchableOpacity>
-          </Modal>
+            </Modal>
         </View>
         
         {/* Sélecteur d'équipement */}
         <View className="flex-1 ml-2">
           <TouchableOpacity 
-            className="flex-row items-center justify-between bg-gray-800 rounded-lg px-4 py-3"
+            className="flex-row items-center justify-between bg-grey/20 rounded-lg px-4 py-3"
             onPress={() => setShowEquipmentMenu(true)}
           >
             <Text className="text-white font-body truncate" numberOfLines={1}>
-              {filters.equipment || "Tous les équipements"}
+              {filters.equipment || "All Equipment"}
             </Text>
             <Ionicons name="chevron-down" size={18} color="#999" />
           </TouchableOpacity>
@@ -119,26 +116,23 @@ const FilterBar: React.FC<FilterBarProps> = ({
               activeOpacity={1}
               onPress={() => setShowEquipmentMenu(false)}
             >
-              <View className="bg-gray-900 m-4 mt-20 rounded-xl max-h-[60%] overflow-hidden">
-                <Text className="p-4 text-white font-title text-lg border-b border-gray-800">
-                  Sélectionner un équipement
-                </Text>
-                
+              
+              <View className="bg-background ml-60 mt-60 rounded-xl max-h-[40%] max-w-[40%] overflow-hidden">                
                 <ScrollView>
                   <TouchableOpacity
-                    className={`px-4 py-3 border-b border-gray-800 ${filters.equipment === '' ? 'bg-accent/20' : ''}`}
+                    className={`px-4 py-3 border-b border-grey/20 ${filters.equipment === '' ? 'bg-accent/20' : ''}`}
                     onPress={() => {
                       onFilterChange('equipment', '');
                       setShowEquipmentMenu(false);
                     }}
                   >
-                    <Text className="text-white font-body">Tous les équipements</Text>
+                    <Text className="text-white font-body">All Equipment</Text>
                   </TouchableOpacity>
                   
                   {filterOptions.equipments.map(equipment => (
                     <TouchableOpacity
                       key={equipment}
-                      className={`px-4 py-3 border-b border-gray-800 ${filters.equipment === equipment ? 'bg-accent/20' : ''}`}
+                      className={`px-4 py-3 border-b border-grey/20 ${filters.equipment === equipment ? 'bg-accent/20' : ''}`}
                       onPress={() => {
                         onFilterChange('equipment', equipment);
                         setShowEquipmentMenu(false);

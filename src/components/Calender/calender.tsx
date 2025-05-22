@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Text, View, ScrollView } from 'react-native'
+import { View, ScrollView } from 'react-native'
 import moment from 'moment'
 import Date from './date'
 

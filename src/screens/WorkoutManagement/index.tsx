@@ -13,7 +13,6 @@ import { WorkoutService } from '../../services/WorkoutService';
 import ExerciseCard, { ExerciseConfig } from './components/ExerciseCard';
 import FilterBar from './components/FilterBar';
 import CreateWorkoutModal from './components/CreateWorkoutModal';
-import FilterModal from './components/FilterModal';
 import SortModal from './components/SortModal';
 import useExerciseFilters from './hooks/useExerciseFilters';
 
@@ -35,13 +34,10 @@ export default function WorkoutManagement() {
     filterOptions, 
     sortOption, 
     filteredExercises, 
-    showFilterModal, 
     showSortModal,
-    setShowFilterModal,
     setShowSortModal,
     setSortOption,
     handleFilterChange,
-    resetFilters
   } = useExerciseFilters(exercises);
 
   // Fonction pour rafraîchir les exercices
@@ -193,15 +189,13 @@ export default function WorkoutManagement() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <View className="px-4 py-4 flex-row items-center justify-between">
-          <Text className="text-white font-title text-2xl">Exercices</Text>
           <TouchableOpacity 
-            className="p-2 rounded-full bg-gray-800" 
+            className="p-2 rounded-full " 
             onPress={() => navigation.navigate('Main')}
           >
             <Ionicons name="close" size={24} color="white" />
           </TouchableOpacity>
         </View>
-        
         <FilterBar 
           filters={{ search: filters.search, target: filters.target, equipment: filters.equipment }}
           onFilterChange={handleFilterChange}
@@ -296,14 +290,6 @@ export default function WorkoutManagement() {
   return (
     <GestureHandlerRootView className="flex-1">
       {renderContent()}
-      <FilterModal 
-        visible={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        filters={{...filters, level: filters.level}}
-        filterOptions={{...filterOptions, levels: filterOptions.levels}}
-        onFilterChange={handleFilterChange}
-        onReset={resetFilters}
-      />
       <SortModal 
         visible={showSortModal}
         onClose={() => setShowSortModal(false)}

@@ -1,0 +1,2 @@
+all:
+	npx expo start

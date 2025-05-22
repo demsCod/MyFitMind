@@ -67,39 +67,21 @@ const ExerciseCard: React.FC<ExerciseCardProps> = ({
             <Ionicons name="checkmark" size={16} color="white" />
           </View>
         )}
-        
-        {/* Layout avec image à gauche et texte à droite */}
         <View className="flex-row items-center">
-          {/* Image container */}
-          <View className="h-[120px] w-[120px] rounded-lg overflow-hidden ">
-            {!imageError && exercise.gifUrl ? (
-              <Image
-                source={{ uri: exercise.gifUrl }}
-                className="w-full h-full"
-                resizeMode="contain"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <View className="w-full h-full items-center justify-center">
-                <Ionicons name="barbell-outline" size={24} color="#666" />
-              </View>
-            )}
-          </View>
           
           {/* Informations sur l'exercice */}
-          <View className="flex-1 ml-5 mb-10">
-            <Text className="text-white font-title text-xl">{exercise.name}</Text>
-            
+          <View className="flex-1 ml-5 mb-1">
+            <Text className="text-white font-body-semibold text-xl">{exercise.name}</Text>
             <View className="flex-row flex-wrap mt-1">
               {exercise.target && (
-                <View className="bg-gray-700/60 rounded-md px-2 py-1 mr-2 mb-1">
-                  <Text className="text-gray-300 text-xs">{exercise.target}</Text>
+                <View className="bg-grey/20 rounded-md px-2 py-1 mr-2 mb-1">
+                  <Text className="text-gray-300 text-lg">{exercise.target}</Text>
                 </View>
               )}
               
               {exercise.equipment && (
-                <View className="bg-gray-700/60 rounded-md px-2 py-1 mb-1">
-                  <Text className="text-gray-300 text-xs">{exercise.equipment}</Text>
+                <View className="bg-grey/20 rounded-md px-2 py-1 mb-1">
+                  <Text className="text-gray-300 text-lg">{exercise.equipment}</Text>
                 </View>
               )}
             </View>

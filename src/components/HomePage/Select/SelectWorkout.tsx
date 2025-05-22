@@ -149,7 +149,7 @@ const CategoryPills = () => {
           <TouchableOpacity
             key={category.id}
             onPress={() => handleCategorySelect(category.id)}
-            className={`flex-row items-center mr-1 justify-centers px-4 py-2 rounded-2xl border border-grey ${
+            className={`flex-row items-center mr-1 justify-centers px-4 py-2 rounded-2xl  ${
               selectedCategory === category.id 
                 ? "bg-accent" 
                 : "bg-bottom"
@@ -167,8 +167,6 @@ const CategoryPills = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-      
-      {/* Liste des entraînements de l'utilisateur */}
       <View className="mt-4">
         {loading ? (
           <View className="items-center justify-center py-10">
@@ -187,9 +185,9 @@ const CategoryPills = () => {
             </TouchableOpacity>
           </View>
         ) : workoutsWithMeta.length === 0 ? (
-          <View className="items-center justify-center py-10">
+          <View className="items-center justify-center py-0">
           
-            <Image source={notfoundImage} className="w-48 h-48" />
+            <Image source={notfoundImage} className="w-[250px] h-[200px]" />
             <Text className="text-white text-center mt-3">
             
             </Text>
@@ -206,17 +204,17 @@ const CategoryPills = () => {
               .map((workout) => (
                 <TouchableOpacity
                   key={workout.id}
-                  className="flex-row items-center justify-between px-4 py-4 mb-3 rounded-xl border border-grey bg-grey/20"
+                  className="flex-row items-center justify-between px-4 py-2 rounded mb-3 bg-grey/20"
                   onPress={() => navigateToWorkoutDetail(workout.id)}
                   onLongPress={() => handleLongPress(workout.id)}
                   delayLongPress={500}
                 >
                   <View className="flex-1">
-                    <Text className="text-white font-body-semibold text-xl">
+                    <Text className="text-white font-body text-xl">
                       {workout.name}
                     </Text>
-                    <Text className="text-gray-300 font-body mt-1">
-                      {workout.durationMinutes} min • {workout.exercises.length} exercices
+                    <Text className="text-gray-300 font-body text-sm mt-1">
+                      {workout.exercises.length} {workout.exercises.length > 1 ? "EXERCISES" : "EXERCISE"}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -230,28 +228,14 @@ const CategoryPills = () => {
             }
           </ScrollView>
         )}
-        
-        {/* Indicateur de synchronisation */}
-        {isSyncing && (
-          <View className="flex-row items-center justify-center mt-1 mb-2">
-            <ActivityIndicator size="small" color="#666" />
-            <Text className="text-gray-400 ml-2 text-xs">Synchronisation...</Text>
-          </View>
-        )}
-        
-        {/* Séparateur */}
-        <View className="h-0.5 bg-grey w-96 self-center mt-2" />
       </View>
       
       {/* Bouton pour créer un nouvel entraînement */}
       <TouchableOpacity
-        className="flex-row items-center justify-center px-4 py-5 mt-6 mb-2 rounded-3xl"
+        className="flex-row items-center justify-center px-4 py-5  mb-2  rounded-3xl"
         onPress={handleCreateWorkout}
       >
-        <Ionicons name="add-circle-outline" size={60} color="#ddd" className="mr-2" />
-        <Text className="text-white font-title text-lg ml-2">
-        
-        </Text>
+        <Ionicons name="add-circle-outline" size={200} color="#b0c4b1" className="mr-2" />
       </TouchableOpacity>
 
       {/* Menu contextuel (affichage quand longue pression) */}

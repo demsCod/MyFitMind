@@ -28,7 +28,6 @@ const Date = ({ date, onSelectDate, selected }: DateProps) => {
     >
       <Text
         style={[styles.big, selected === fullDate && { color: "#fff" }]}
-        className='text-white'
       >
         {day}
       </Text>
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
   big: {
     fontWeight: 'bold',
     fontFamily: 'Roboto',
-    color: '#717C89',
+    color: '#F7E1D7',
     fontSize: 12,
   },
   selected: {
