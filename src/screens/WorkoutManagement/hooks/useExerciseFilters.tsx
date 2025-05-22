@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Exercise } from '../../../hooks/useExerciseGithubDB'; // Mise à jour de l'import
+import { Exercise } from '../../../hooks/useExerciseGithubDB';
 
 export default function useExerciseFilters(exercises: Exercise[] | null) {
   const [filters, setFilters] = useState({
@@ -7,7 +7,6 @@ export default function useExerciseFilters(exercises: Exercise[] | null) {
     bodyPart: '',
     target: '',
     equipment: '',
-    level: '', // Ajout du filtre de niveau
   });
   
   const [sortOption, setSortOption] = useState('name_asc');
@@ -20,22 +19,20 @@ export default function useExerciseFilters(exercises: Exercise[] | null) {
     bodyParts: [] as string[],
     targets: [] as string[],
     equipments: [] as string[],
-    levels: [] as string[],
   });
 
   // Extraire les options de filtrage des exercices
   useEffect(() => {
     if (exercises) {
+      // Extraire les valeurs uniques pour chaque filtre
       const bodyParts = [...new Set(exercises.map(ex => ex.bodyPart).filter(Boolean))];
       const targets = [...new Set(exercises.map(ex => ex.target).filter(Boolean))];
       const equipments = [...new Set(exercises.map(ex => ex.equipment).filter(Boolean))];
-      const levels = [...new Set(exercises.map(ex => ex.level).filter(Boolean))];
       
       setFilterOptions({
-        bodyParts: bodyParts.sort(),
+        bodyParts: bodyParts.filter((bp): bp is string => bp !== undefined).sort(),
         targets: targets.sort(),
         equipments: equipments.sort(),
-        levels: levels.sort(),
       });
     }
   }, [exercises]);
@@ -69,10 +66,6 @@ export default function useExerciseFilters(exercises: Exercise[] | null) {
       result = result.filter(ex => ex.equipment === filters.equipment);
     }
     
-    if (filters.level) {
-      result = result.filter(ex => ex.level === filters.level);
-    }
-    
     // Appliquer le tri
     switch (sortOption) {
       case 'name_asc':
@@ -86,13 +79,6 @@ export default function useExerciseFilters(exercises: Exercise[] | null) {
         break;
       case 'equipment_asc':
         result.sort((a, b) => (a.equipment || '').localeCompare(b.equipment || ''));
-        break;
-      case 'level_asc': // Ajout du tri par niveau
-        const levelOrder = { beginner: 0, intermediate: 1, expert: 2 };
-        result.sort((a, b) => 
-          (levelOrder[a.level as keyof typeof levelOrder] || 0) - 
-          (levelOrder[b.level as keyof typeof levelOrder] || 0)
-        );
         break;
     }
     
@@ -111,7 +97,6 @@ export default function useExerciseFilters(exercises: Exercise[] | null) {
       bodyPart: '',
       target: '',
       equipment: '',
-      level: '',
     });
     setShowFilterModal(false);
   };

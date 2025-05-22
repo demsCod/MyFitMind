@@ -1,44 +1,19 @@
 import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { exerciseData, Exercise as LocalExercise } from '../../data/WorkoutData';
 
-// URLs pour les données
-const GITHUB_DATA_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
-const GITHUB_IMAGE_BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
-
-// Clés pour le stockage local
-const EXERCISES_GITHUB_KEY = 'exerciseGithubDB_data';
-const LAST_FETCH_GITHUB_KEY = 'exerciseGithubDB_lastFetch';
-
-// 7 jours de cache - Les données ne changent pas souvent
-const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000;
-
-// Type d'un exercice du format GitHub
-export interface GitHubExercise {
-  id: string;
-  name: string;
-  force: string | null;
-  level: string;
-  mechanic: string | null;
-  equipment: string | null;
-  primaryMuscles: string[];
-  secondaryMuscles: string[];
-  instructions: string[];
-  category: string;
-  images: string[];
-}
-
-// Type d'exercice mappé à notre format interne
+// Type adapté depuis votre format WorkoutData
 export interface Exercise {
   id: string;
   name: string;
-  gifUrl: string;
-  images: string[];
-  bodyPart: string;
+  gifUrl?: string;
+  bodyPart?: string;
   target: string;
   equipment: string;
-  instructions: string[];
-  secondaryMuscles: string[];
-  level: string;
+  category: string;
+  instructions: string[]; // Maintenant un champ requis, pas optionnel
+  secondaryMuscles?: string[];
+  image?: any;
+  difficultyLevel?: 'beginner' | 'intermediate' | 'advanced';
 }
 
 export const useExerciseGithubDB = () => {
@@ -46,115 +21,54 @@ export const useExerciseGithubDB = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Chargement depuis le stockage local
-  const loadFromStorage = async () => {
-    try {
-      const cachedData = await AsyncStorage.getItem(EXERCISES_GITHUB_KEY);
-      const lastFetchTimeStr = await AsyncStorage.getItem(LAST_FETCH_GITHUB_KEY);
-      
-      if (!cachedData) {
-        console.log('Aucune donnée en cache, chargement depuis GitHub...');
-        return false;
-      }
-      
-      if (lastFetchTimeStr) {
-        const lastFetchTime = parseInt(lastFetchTimeStr);
-        const now = Date.now();
-        
-        if (now - lastFetchTime < CACHE_DURATION) {
-          const parsedData = JSON.parse(cachedData);
-          setExercises(parsedData);
-          console.log('Exercices chargés depuis le stockage local (données fraîches)');
-          setLoading(false);
-          return true;
-        }
-        
-        console.log('Données en cache expirées, rechargement depuis GitHub...');
-      }
-      
-      // Utiliser les données en cache pendant le chargement
-      setExercises(JSON.parse(cachedData));
-      return false;
-    } catch (error) {
-      console.error('Erreur lors du chargement depuis le stockage :', error);
-      return false;
-    }
-  };
-
-  // Conversion du format GitHub à notre format interne
-  const mapGitHubExerciseToInternalFormat = (exercise: GitHubExercise): Exercise => {
-    // Construction de l'URL de l'image principale
-    const imageUrl = exercise.images && exercise.images.length > 0
-      ? `${GITHUB_IMAGE_BASE_URL}${exercise.images[0]}`
-      : '';
-    
-    // Construction des URLs pour toutes les images
-    const imageUrls = exercise.images 
-      ? exercise.images.map(img => `${GITHUB_IMAGE_BASE_URL}${img}`)
-      : [];
-      
+  // Convertir les données de WorkoutData au format attendu par l'application
+  const mapLocalExerciseToInternalFormat = (exercise: LocalExercise): Exercise => {
     return {
       id: exercise.id,
       name: exercise.name,
-      gifUrl: imageUrl,
-      images: imageUrls,
-      bodyPart: exercise.primaryMuscles[0] || '',
-      target: exercise.primaryMuscles[0] || '',
-      equipment: exercise.equipment || '',
-      instructions: exercise.instructions || [],
-      secondaryMuscles: exercise.secondaryMuscles || [],
-      level: exercise.level || 'beginner'
+      gifUrl: exercise.image ? 'local-image' : undefined,
+      image: exercise.image,
+      bodyPart: exercise.category,
+      target: exercise.targetMuscles[0] || '',
+      equipment: exercise.equipment[0] || '',
+      category: exercise.category,
+      // Utiliser les instructions définies ou un tableau par défaut avec une instruction générique
+      instructions: exercise.instructions || ["Réalisez l'exercice en suivant la démonstration visuelle."],
+      secondaryMuscles: exercise.targetMuscles.slice(1),
+      difficultyLevel: exercise.difficultyLevel
     };
   };
 
-  // Récupération depuis GitHub et stockage
-  const fetchAndStoreExercises = async () => {
+  // Charger les données depuis WorkoutData
+  const loadLocalExercises = () => {
     try {
       setLoading(true);
       setError(null);
-
-      console.log('Chargement des exercices depuis GitHub...');
-      const response = await fetch(GITHUB_DATA_URL);
       
-      if (!response.ok) {
-        throw new Error(`GitHub API Error: ${response.status}`);
-      }
+      console.log('Chargement des exercices depuis les données locales...');
       
-      const data: GitHubExercise[] = await response.json();
+      // Convertir les exercices au format interne
+      const mappedExercises = exerciseData.map(mapLocalExerciseToInternalFormat);
       
-      // Mapper les données au format interne
-      const mappedExercises = data.map(mapGitHubExerciseToInternalFormat);
-      
-      // Stocker les données mappées
-      await AsyncStorage.setItem(EXERCISES_GITHUB_KEY, JSON.stringify(mappedExercises));
-      await AsyncStorage.setItem(LAST_FETCH_GITHUB_KEY, Date.now().toString());
-      
-      console.log(`${mappedExercises.length} exercices récupérés depuis GitHub et stockés localement`);
+      console.log(`${mappedExercises.length} exercices chargés depuis les données locales`);
       setExercises(mappedExercises);
+      
+      setLoading(false);
     } catch (error) {
-      console.error('Erreur lors du chargement des exercices depuis GitHub:', error);
+      console.error('Erreur lors du chargement des exercices locaux:', error);
       setError(error instanceof Error ? error.message : 'Erreur inconnue');
-    } finally {
       setLoading(false);
     }
   };
 
   // Initialisation au montage du composant
   useEffect(() => {
-    const initData = async () => {
-      const hasFreshData = await loadFromStorage();
-      
-      if (!hasFreshData) {
-        await fetchAndStoreExercises();
-      }
-    };
-    
-    initData();
+    loadLocalExercises();
   }, []);
 
   // Fonction pour rafraîchir manuellement les données
-  const refreshExercises = async () => {
-    await fetchAndStoreExercises();
+  const refreshExercises = () => {
+    loadLocalExercises();
   };
 
   return { exercises, loading, error, refreshExercises };

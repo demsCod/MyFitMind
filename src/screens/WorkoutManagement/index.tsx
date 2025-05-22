@@ -273,11 +273,11 @@ export default function WorkoutManagement() {
         {selectedExercises.length > 0 && (
           <View className="absolute bottom-4 right-4 left-4 bg-background">
             <TouchableOpacity 
-              className="bg-accent py-3 rounded-lg items-center flex-row justify-center"
+              className="bg-accent py-3 rounded-lg items-center flex-row justify-center mb-4"
               onPress={() => setShowCreateModal(true)}
             >
-              <Text className="text-white font-body-semibold ml-2">
-                Créer l'entraînement ({selectedExercises.length})
+              <Text className="text-white font-body-semibold text-xl  text-center mb-2">
+                Create Workout
               </Text>
             </TouchableOpacity>
           </View>
