@@ -2,6 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text } from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
+import { Image } from 'react-native';
+
+import DumbbellIcon from '../../assets/icons/dumbell.png';
 // Importez vos écrans ici
 // import DashboardScreen from '../screens/DashboardScreen';
 // import ProfileScreen from '../screens/ProfileScreen';
@@ -15,31 +18,37 @@ export default function BottomTabsNavigator() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#212021',
-          borderTopColor: 'transparent',
-          height: 80,
+          backgroundColor: '#4a5757',
+          borderTopColor: '#b0c4b1',
+          height: 90,
         },
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName = '';
-          
+        tabBarIcon: ({ focused }) => {
+          let icon;
+
           if (route.name === 'Home') {
-            // Icône de musculation pour l'accueil
-            iconName = focused ? 'barbell' : 'barbell-outline';
+            icon = (
+              <Image
+                source={DumbbellIcon}
+                style={{
+                  width: 48,
+                  height: 24,
+                  tintColor: focused ? 'white' : 'grey',
+                }}
+              />
+            );
           } else if (route.name === 'Dashboard') {
-            // Icône de statistiques pour le dashboard
-            iconName = focused ? 'stats-chart' : 'stats-chart-outline';
+            icon = (
+              <Text style={{ color: focused ? 'white' : 'grey', fontSize: 22 }}>📊</Text>
+            );
           } else if (route.name === 'Profile') {
-            // Icône de profil
-            iconName = focused ? 'person' : 'person-outline';
+            icon = (
+              <Text style={{ color: focused ? 'white' : 'grey', fontSize: 22 }}>👤</Text>
+            );
           }
 
           return (
-            <View className="items-center justify-center h-full mt-5">
-              <Ionicons
-                name={iconName as any}
-                size={22}
-                color={focused ? 'white' : 'grey'}
-              />
+            <View style={{ alignItems: 'center', justifyContent: 'center', height: '100%', marginTop: 20 }}>
+              {icon}
             </View>
           );
         },
