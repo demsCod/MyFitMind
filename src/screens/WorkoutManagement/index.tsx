@@ -203,7 +203,7 @@ export default function WorkoutManagement() {
         />
         
         {/* Affichage des filtres actifs */}
-        {(filters.bodyPart || filters.target || filters.equipment || filters.level) && (
+        {(filters.bodyPart || filters.target || filters.equipment) && (
           <View className="flex-row flex-wrap px-4 mb-3 gap-2">
             {filters.bodyPart && (
               <Chip 
@@ -221,16 +221,6 @@ export default function WorkoutManagement() {
               <Chip 
                 label={`Équipement: ${filters.equipment}`} 
                 onClose={() => handleFilterChange('equipment', '')}
-              />
-            )}
-            {filters.level && (
-              <Chip 
-                label={`Niveau: ${
-                  filters.level === 'beginner' ? 'Débutant' : 
-                  filters.level === 'intermediate' ? 'Intermédiaire' : 
-                  'Avancé'
-                }`} 
-                onClose={() => handleFilterChange('level', '')}
               />
             )}
           </View>

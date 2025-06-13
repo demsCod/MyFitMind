@@ -1,68 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useWorkouts } from '../../../hooks/useWorkouts';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'react-native';
+import { RootStackParamList } from '../../../navigation/types';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-type Category = {
-  id: string;
-  name: string;
-  icon: keyof typeof Ionicons.glyphMap;
-};
 
-// Définir les catégories disponibles
-const categories: Category[] = [
-  { id: "all", name: "Tous", icon: "fitness-outline" },
-  { id: "cardio", name: "Cardio", icon: "heart-outline" },
-  { id: "muscle", name: "Musculation", icon: "barbell-outline" },
-  { id: "strength", name: "Force", icon: "body-outline" },
-  { id: "hiit", name: "HIIT", icon: "flash-outline" },
-  { id: "yoga", name: "Yoga", icon: "leaf-outline" },
-  { id: "other", name: "Autres", icon: "options-outline" },
-];
+const notfoundImage =  require('../../../../assets/WorkoutNotFound.png'); 
 
-const notfoundImage = require('../../../../assets/WorkoutNotFound.png'); // Remplacez par le chemin de votre image
 
-const CategoryPills = () => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
+function SelectWorkout() {
+
   const { workouts, loading, error, refreshWorkouts, isSyncing, deleteWorkout } = useWorkouts();
-  const navigation = useNavigation();
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'WorkoutDetail'>;
+  const navigation = useNavigation<NavigationProp>();
   const [contextMenu, setContextMenu] = useState<{visible: boolean; workoutId: string | null}>({
     visible: false,
     workoutId: null
-  });
-
-  // Calculer la durée totale et le nombre d'exercices pour chaque entraînement
-  const workoutsWithMeta = workouts.map(workout => {
-    // Calculer la durée approximative basée sur le nombre de séries et temps de repos
-    let totalDuration = 0;
-    const exercisesCount = workout.exercises.length;
-    
-    workout.exercises.forEach(ex => {
-      const sets = parseInt(ex.config.sets) || 0;
-      
-      if (ex.config.isTimeBased) {
-        const duration = parseInt(ex.config.duration) || 0;
-        const restTime = parseInt(ex.config.restTime) || 0;
-        // Temps d'exercice + temps de repos entre les séries
-        totalDuration += sets * duration + (sets - 1) * restTime;
-      } else {
-        const reps = parseInt(ex.config.reps) || 0;
-        const restTime = parseInt(ex.config.restTime) || 0;
-        // Estimation: 3 secondes par répétition + temps de repos
-        totalDuration += sets * (reps * 3) + (sets - 1) * restTime;
-      }
-    });
-    
-    // Convertir en minutes et arrondir
-    const durationMinutes = Math.ceil(totalDuration / 60);
-    
-    return {
-      ...workout,
-      durationMinutes,
-      exercisesCount
-    };
   });
 
   // Ouvrir le menu contextuel
@@ -84,15 +40,9 @@ const CategoryPills = () => {
   // Naviguer vers les détails de l'entraînement
   const navigateToWorkoutDetail = (workoutId: string) => {
     closeContextMenu();
+    if (!workoutId) return;
     console.log(`Voir l'entraînement: ${workoutId}`);
     navigation.navigate('WorkoutDetail', { workoutId });
-  };
-
-  // Naviguer vers l'édition de l'entraînement
-  const navigateToEditWorkout = (workoutId: string) => {
-    closeContextMenu();
-    console.log(`Modifier l'entraînement: ${workoutId}`);
-    // navigation.navigate('EditWorkout', { workoutId });
   };
 
   // Supprimer un entraînement avec confirmation
@@ -122,10 +72,6 @@ const CategoryPills = () => {
     );
   };
 
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-  };
-
   const handleCreateWorkout = () => {
     navigation.navigate('WorkoutManagement');
   };
@@ -145,27 +91,6 @@ const CategoryPills = () => {
         className="mb-2"
         style={{ height: 40 }}
       >
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            onPress={() => handleCategorySelect(category.id)}
-            className={`flex-row items-center mr-1 justify-centers px-4 py-2 rounded-2xl  ${
-              selectedCategory === category.id 
-                ? "bg-accent" 
-                : "bg-bottom"
-            }`}
-          >
-            <Text 
-              className={`${
-                selectedCategory === category.id 
-                  ? "text-black font-body-semibold" 
-                  : "text-white font-body"
-              }`}
-            >
-              {category.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
       </ScrollView>
       <View className="mt-4">
         {loading ? (
@@ -184,7 +109,7 @@ const CategoryPills = () => {
               <Text className="text-white font-body">Réessayer</Text>
             </TouchableOpacity>
           </View>
-        ) : workoutsWithMeta.length === 0 ? (
+        ) : workouts.length === 0 ?  (
           <View className="items-center justify-center py-0">
           
             <Image source={notfoundImage} className="w-[250px] h-[200px]" />
@@ -196,15 +121,17 @@ const CategoryPills = () => {
           <ScrollView 
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 16 }}
-            style={{ minHeight: 250 }} // Fixed height
+            style={{ maxHeight: 280,
+              flexGrow: 1, // Permet de s'adapter à l'espace disponible
+              flexShrink: 1, // Permet de s'adapter à l'espace disponible
+              minHeight: 280, 
+              height: 280, // Fixe la hauteur pour éviter les problèmes de défilement 
+             }} // Fixed height
           >
-            {workoutsWithMeta
-              // Filtre basé sur la catégorie (à implémenter selon votre logique)
-              .filter(workout => selectedCategory === "all" || workout.category === selectedCategory)
-              .map((workout) => (
+            {workouts.map((workout) => (
                 <TouchableOpacity
                   key={workout.id}
-                  className="flex-row items-center justify-between px-4 py-2 rounded mb-3 bg-grey/20"
+                  className="flex-row items-center justify-between px-4 py-2 rounded-xl mb-3 bg-grey/20"
                   onPress={() => navigateToWorkoutDetail(workout.id)}
                   onLongPress={() => handleLongPress(workout.id)}
                   delayLongPress={500}
@@ -255,23 +182,15 @@ const CategoryPills = () => {
               <>
                 <TouchableOpacity
                   className="flex-row items-center px-6 py-4 border-b border-gray-700"
-                  onPress={() => navigateToWorkoutDetail(contextMenu.workoutId)}
+                  onPress={() => contextMenu.workoutId && navigateToWorkoutDetail(contextMenu.workoutId)}
                 >
                   <Ionicons name="play-circle-outline" size={24} color="#3772FF" />
                   <Text className="text-white ml-4 font-body-medium">Voir les détails</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity
-                  className="flex-row items-center px-6 py-4 border-b border-gray-700"
-                  onPress={() => navigateToEditWorkout(contextMenu.workoutId)}
-                >
-                  <Ionicons name="create-outline" size={24} color="#3772FF" />
-                  <Text className="text-white ml-4 font-body-medium">Modifier</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
                   className="flex-row items-center px-6 py-4"
-                  onPress={() => handleDeleteWorkout(contextMenu.workoutId)}
+                  onPress={() => contextMenu.workoutId &&  handleDeleteWorkout(contextMenu.workoutId)}
                 >
                   <Ionicons name="trash-outline" size={24} color="#FF3B30" />
                   <Text className="text-red-500 ml-4 font-body-medium">Supprimer</Text>
@@ -289,7 +208,7 @@ const CategoryPills = () => {
         </TouchableOpacity>
       </Modal>
     </View>
-  );
-};
+  );}
 
-export default CategoryPills;
+
+export default SelectWorkout;

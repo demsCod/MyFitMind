@@ -3,19 +3,28 @@ import * as firebaseAuth from 'firebase/auth';
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { initializeAuth } from 'firebase/auth';
-
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Votre configuration Firebase
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID
+} from "@env";
+
+// Configuration Firebase avec variables d'environnement
 const firebaseConfig = {
-  apiKey: "AIzaSyAWnfBu2raXEQhruSxZKk8nzXrZzb1JQUI",
-  authDomain: "myfitmind-93.firebaseapp.com",
-  projectId: "myfitmind-93",
-  storageBucket: "myfitmind-93.firebasestorage.app",
-  messagingSenderId: "1050488325610",
-  appId: "1:1050488325610:web:15034ce7efd3ab7ee4de93",
-  measurementId: "G-NZJDHTVXRE"
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID,
+  measurementId: FIREBASE_MEASUREMENT_ID
 };
 const reactNativePersistence = (firebaseAuth as any).getReactNativePersistence;
 // Initialize Firebase
